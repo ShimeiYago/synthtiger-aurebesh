@@ -33,15 +33,11 @@ corpus:
       augmentation_charset: resources/charset/alphanum_special.txt
 
 font:
-  class: Selector
-  components:
-    - class: BaseFont
-      paths: [aurebesh/fonts/core]
-      size: [40, 80]
-    - class: BaseFont
-      paths: [aurebesh/fonts/variant]
-      size: [40, 80]
-  weights: [0.7, 0.3]
+  # Use BaseFont directly (template expects BaseFont kwargs)
+  paths: [aurebesh/fonts/core, aurebesh/fonts/variant]
+  weights: [7, 3]  # 70% core, 30% variant
+  size: [40, 80]
+  bold: 0
 
 texture:
   prob: 0.5
