@@ -15,10 +15,12 @@ Fork of [SynthTIGER](https://github.com/clovaai/synthtiger) specialized for gene
 
 SynthTIGER requires `python>=3.6` and `libraqm`.
 
+Recommended: use Python **3.11** for this fork (validated with the provided `constraints.txt`).
+
 To install SynthTIGER from PyPI:
 
 ```bash
-$ pip install synthtiger
+pip install -c constraints.txt synthtiger
 ```
 
 If you see a dependency error when you install or run SynthTIGER, install [dependencies](depends).
