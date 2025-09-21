@@ -20,7 +20,7 @@ Recommended: use Python **3.11** for this fork (validated with the provided `con
 To install SynthTIGER from PyPI:
 
 ```bash
-pip install -c constraints.txt synthtiger
+pip install -c constraints.txt synthtiger wordfreq
 ```
 
 If you see a dependency error when you install or run SynthTIGER, install [dependencies](depends).
@@ -57,6 +57,16 @@ python tools/extract_font_charset.py aurebesh/fonts/core
 python tools/extract_font_charset.py aurebesh/fonts/variant
 ```
 
+### Generate Aurebesh Corpus
+
+Create a mixed English + Star Wars term corpus (uppercase, 1–4 words per line) that SynthTIGER will sample from:
+
+```bash
+python tools/generate_aurebesh_corpus.py --size 1000000
+```
+
+Adjust distribution or Star Wars term rate with: `--len-dist "1:0.5,2:0.3,3:0.1,4:0.1"`, `--p-sw 0.05`, `--inject-punct 0.05`. The default Star Wars vocab file is at `aurebesh/vocab/starwars-vocab.txt`.
+
 ## Usage
 
 ```bash
@@ -81,22 +91,15 @@ optional arguments:
   -v, --verbose         Print error messages while generating data.
 ```
 
-### Examples
-
-#### SynthTIGER text images
+### Generate SynthTIGER text images
 
 ```bash
 # horizontal
-synthtiger -o results -w 4 -v examples/synthtiger/template.py SynthTiger examples/synthtiger/config_horizontal.yaml
+synthtiger -o results -w 4 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml -c 3000000
 
 # vertical
-synthtiger -o results -w 4 -v examples/synthtiger/template.py SynthTiger examples/synthtiger/config_vertical.yaml
+synthtiger -o results -w 4 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml -c 3000000
 ```
-
-<p>
-    <img src="https://user-images.githubusercontent.com/12423224/153699084-1d5fbb15-0ca0-4a85-9639-6f2c4c1bf9ec.png" width="50%"/>
-    <img src="https://user-images.githubusercontent.com/12423224/199258481-5706db59-127a-4453-a8ab-4a0bb9f266d5.png" width="45%"/>
-</p>
 
 - `images`: a directory containing images.
 - `gt.txt`: a file containing text labels.
@@ -104,17 +107,6 @@ synthtiger -o results -w 4 -v examples/synthtiger/template.py SynthTiger example
 - `glyph_coords.txt`: a file containing bounding boxes of characters without text effect.
 - `masks`: a directory containing mask images with text effect.
 - `glyph_masks`: a directory containing mask images without text effect.
-
-#### Multiline text images
-
-```bash
-synthtiger -o results -w 4 -v examples/multiline/template.py Multiline examples/multiline/config.yaml
-```
-
-<img src="https://user-images.githubusercontent.com/12423224/153699088-cdeb3eb3-e117-4959-abf4-8454ad95d886.png" width="75%"/>
-
-- `images`: a directory containing images.
-- `gt.txt`: a file containing text labels.
 
 ## Advanced Usage
 

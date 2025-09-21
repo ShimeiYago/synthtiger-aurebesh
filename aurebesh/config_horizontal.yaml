@@ -13,22 +13,23 @@ midground_offset:
 foreground_mask_pad: 5
 
 corpus:
+  # Use the generated Aurebesh-ready corpus (already uppercase)
   weights: [1, 0]
   args:
-    # length augmentable corpus
-    - paths: [resources/corpus/mjsynth.txt, resources/corpus/synthtext.txt]
-      weights: [1, 1]
+    # main corpus (no case augmentation needed)
+    - paths: [aurebesh/corpus.txt]
+      weights: [1]
       min_length: 1
-      max_length: 25
-      textcase: [lower, upper, capitalize]
-      augmentation: 0.1
-      augmentation_length: [1, 25]
-    # char augmentable corpus
+      max_length: 35
+      textcase: [upper]
+      augmentation: 0
+      augmentation_length: [1, 35]
+    # (disabled) char augmentable corpus placeholder
     - paths: []
       weights: []
       min_length: 1
       max_length: 25
-      textcase: [lower, upper, capitalize]
+      textcase: [upper]
       augmentation: 0
       augmentation_charset: resources/charset/alphanum_special.txt
 

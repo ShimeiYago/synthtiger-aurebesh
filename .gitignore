@@ -111,3 +111,4 @@ venv.bak/
 
 # Aurebesh project specific
 aurebesh/fonts
+aurebesh/corpus.txt
