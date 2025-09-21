@@ -95,7 +95,7 @@ optional arguments:
 
 ```bash
 # horizontal
-synthtiger -o results -w 4 -c 300000 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml
+synthtiger -o results/synthtiger_output -w 4 -c 300000 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml
 ```
 
 - `images`: a directory containing images.
@@ -104,6 +104,12 @@ synthtiger -o results -w 4 -c 300000 examples/synthtiger/template.py SynthTiger 
 - `glyph_coords.txt`: a file containing bounding boxes of characters without text effect.
 - `masks`: a directory containing mask images with text effect.
 - `glyph_masks`: a directory containing mask images without text effect.
+
+### Export to PaddleOCR recognizer dataset
+
+```bash
+python tools/export_to_paddleocr.py -i results/synthtiger_output -o results/paddleocr_data
+```
 
 ## Advanced Usage
 
