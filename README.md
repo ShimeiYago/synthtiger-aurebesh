@@ -62,7 +62,7 @@ python tools/extract_font_charset.py aurebesh/fonts/variant
 Create a mixed English + Star Wars term corpus (uppercase, 1–4 words per line) that SynthTIGER will sample from:
 
 ```bash
-python tools/generate_aurebesh_corpus.py --size 1000000
+python tools/generate_aurebesh_corpus.py --size 150000
 ```
 
 Adjust distribution or Star Wars term rate with: `--len-dist "1:0.5,2:0.3,3:0.1,4:0.1"`, `--p-sw 0.05`, `--inject-punct 0.05`. The default Star Wars vocab file is at `aurebesh/vocab/starwars-vocab.txt`.
@@ -95,10 +95,7 @@ optional arguments:
 
 ```bash
 # horizontal
-synthtiger -o results -w 4 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml -c 3000000
-
-# vertical
-synthtiger -o results -w 4 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml -c 3000000
+synthtiger -o results -w 4 -c 300000 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml
 ```
 
 - `images`: a directory containing images.

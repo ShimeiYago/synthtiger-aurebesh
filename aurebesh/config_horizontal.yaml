@@ -87,7 +87,7 @@ layout:
     - space: [-2, 5]
       line_align: [middle]
     # curve layout
-    - curve: [20, 40]
+    - curve: [5, 12]
       space: [-2, 5]
       convex: 0.5
       upward: 0.5
@@ -115,10 +115,10 @@ style:
 transform:
   prob: 1
   args:
-    weights: [1, 1, 1, 1, 1, 1, 2]
+    weights: [1, 1, 1, 1, 1, 1, 1]
     args:
       # perspective x
-      - percents: [[0.5, 1], [1, 1]]
+      - percents: [[0.8, 1], [1, 1]]
         aligns: [[0, 0], [0, 0]]
       # perspective y
       - percents: [[1, 1], [0.5, 1]]
@@ -133,14 +133,14 @@ transform:
         align: [-1, 1]
       # skew x
       - weights: [1, 0]
-        angle: [0, 30]
+        angle: [0, 12]
         ccw: 0.5
       # skew y
       - weights: [0, 1]
-        angle: [0, 10]
+        angle: [0, 6]
         ccw: 0.5
       # rotate
-      - angle: [0, 10]
+      - angle: [0, 3]
         ccw: 0.5
 
 pad:
