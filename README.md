@@ -1,46 +1,71 @@
-<div align="center">
+# SynthTIGER for Aurebesh
 
-# SynthTIGER 🐯 : Synthetic Text Image Generator
-
-[![PyPI version](https://img.shields.io/pypi/v/synthtiger)](https://pypi.org/project/synthtiger/)
-[![CI](https://github.com/clovaai/synthtiger/actions/workflows/ci.yml/badge.svg)](https://github.com/clovaai/synthtiger/actions/workflows/ci.yml)
-[![Docs](https://github.com/clovaai/synthtiger/actions/workflows/docs.yml/badge.svg)](https://github.com/clovaai/synthtiger/actions/workflows/docs.yml)
-[![License](https://img.shields.io/github/license/clovaai/synthtiger)](LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-Synthetic Text Image Generator for OCR Model | [Paper](https://arxiv.org/abs/2107.09313) | [Documentation](https://clovaai.github.io/synthtiger/) | [Datasets](#datasets)
-
-</div>
-
-<img src="https://user-images.githubusercontent.com/12423224/153699080-29da7908-0662-4435-ba27-dd07c3bbb7f2.png"/>
+Fork of [SynthTIGER](https://github.com/clovaai/synthtiger) specialized for generating synthetic Aurebesh (Star Wars alphabet) text images. This project enables the creation of Aurebesh text data for training text recognition models.
 
 ## Contents
 
-- [Documentation](#documentation)
 - [Installation](#installation)
+- [Preparation](#preparation)
 - [Usage](#usage)
 - [Advanced Usage](#advanced-usage)
-- [Datasets](#datasets)
 - [Citation](#citation)
 - [License](#license)
-
-## Documentation
-
-The documentation is available at <https://clovaai.github.io/synthtiger/>.
-
-You can check API reference in this documentation.
 
 ## Installation
 
 SynthTIGER requires `python>=3.6` and `libraqm`.
 
+Recommended: use Python **3.11** for this fork (validated with the provided `constraints.txt`).
+
 To install SynthTIGER from PyPI:
 
 ```bash
-$ pip install synthtiger
+pip install -c constraints.txt synthtiger wordfreq
 ```
 
 If you see a dependency error when you install or run SynthTIGER, install [dependencies](depends).
+
+## Preparation
+
+### Place Aurebesh font files
+
+Copy your `.otf / .ttf` fonts into the style buckets:
+
+```
+aurebesh/fonts/core     # canonical fonts (used 70% of the time)
+aurebesh/fonts/variant  # bold / italic / condensed (used 30% of the time)
+```
+
+**Recommended fonts**
+
+| Category | Font (Style)                     | License                                     | Download                                                              |
+| -------- | -------------------------------- | ------------------------------------------- | --------------------------------------------------------------------- |
+| Core     | **Aurebesh AF – Canon**          | Public Domain                               | [FontSpace](https://www.fontspace.com/aurebesh-af-font-f49637)        |
+|          | **FT Aurebesh – Regular**        | SIL OFL 1.1                                 | [DeeFont](https://www.deefont.com/ft-aurebesh-font-family/)           |
+|          | **FT Aurebesh – UltraLight**     | SIL OFL 1.1                                 | [DeeFont](https://www.deefont.com/ft-aurebesh-font-family/)           |
+|          | **Aurek-Besh – Regular**         | Freeware                                    | [FontSpace](https://www.fontspace.com/aurek-besh-font-f9639)          |
+| Variant  | **FT Aurebesh – Black**          | SIL OFL 1.1                                 | [DeeFont](https://www.deefont.com/ft-aurebesh-font-family/)           |
+|          | **Aurebesh Font – Italic**       | Freeware, commercial use requires donation  | [FontSpace](https://www.fontspace.com/aurebesh-font-f17959)           |
+|          | **Aurek-Besh – Narrow**          | Freeware                                    | [FontSpace](https://www.fontspace.com/aurek-besh-font-f9639)          |
+
+Note: I do not own the copyright to these fonts.
+
+Then generate charset file for each font:
+
+```bash
+python tools/extract_font_charset.py aurebesh/fonts/core
+python tools/extract_font_charset.py aurebesh/fonts/variant
+```
+
+### Generate Aurebesh Corpus
+
+Create a mixed English + Star Wars term corpus (uppercase, 1–4 words per line) that SynthTIGER will sample from:
+
+```bash
+python tools/generate_aurebesh_corpus.py --size 150000
+```
+
+Adjust distribution or Star Wars term rate with: `--len-dist "1:0.5,2:0.3,3:0.1,4:0.1"`, `--p-sw 0.05`, `--inject-punct 0.05`. The default Star Wars vocab file is at `aurebesh/vocab/starwars-vocab.txt`.
 
 ## Usage
 
@@ -66,22 +91,12 @@ optional arguments:
   -v, --verbose         Print error messages while generating data.
 ```
 
-### Examples
-
-#### SynthTIGER text images
+### Generate SynthTIGER text images
 
 ```bash
 # horizontal
-synthtiger -o results -w 4 -v examples/synthtiger/template.py SynthTiger examples/synthtiger/config_horizontal.yaml
-
-# vertical
-synthtiger -o results -w 4 -v examples/synthtiger/template.py SynthTiger examples/synthtiger/config_vertical.yaml
+synthtiger -o results -w 4 -c 300000 examples/synthtiger/template.py SynthTiger aurebesh/config_horizontal.yaml
 ```
-
-<p>
-    <img src="https://user-images.githubusercontent.com/12423224/153699084-1d5fbb15-0ca0-4a85-9639-6f2c4c1bf9ec.png" width="50%"/>
-    <img src="https://user-images.githubusercontent.com/12423224/199258481-5706db59-127a-4453-a8ab-4a0bb9f266d5.png" width="45%"/>
-</p>
 
 - `images`: a directory containing images.
 - `gt.txt`: a file containing text labels.
@@ -89,17 +104,6 @@ synthtiger -o results -w 4 -v examples/synthtiger/template.py SynthTiger example
 - `glyph_coords.txt`: a file containing bounding boxes of characters without text effect.
 - `masks`: a directory containing mask images with text effect.
 - `glyph_masks`: a directory containing mask images without text effect.
-
-#### Multiline text images
-
-```bash
-synthtiger -o results -w 4 -v examples/multiline/template.py Multiline examples/multiline/config.yaml
-```
-
-<img src="https://user-images.githubusercontent.com/12423224/153699088-cdeb3eb3-e117-4959-abf4-8454ad95d886.png" width="75%"/>
-
-- `images`: a directory containing images.
-- `gt.txt`: a file containing text labels.
 
 ## Advanced Usage
 
@@ -180,67 +184,6 @@ class MyTemplate(templates.Template):
 
     def end_save(self, root):
         # finalize something after save.
-```
-
-## Datasets
-
-SynthTIGER is available for download at [google drive](https://drive.google.com/drive/folders/1faHxo6gVeUmmFKJf8dxFZf_yRjamUL96?usp=sharing).
-
-Dataset was split into several smaller files. Please download all files and run following command.
-
-```bash
-# for Linux, macOS
-cat synthtiger_v1.0.zip.* > synthtiger_v1.0.zip
-
-# for Windows
-copy /b synthtiger_v1.0.zip.* synthtiger_v1.0.zip
-```
-
-**synthtiger_v1.0.zip** (36G) (md5: 5b5365f4fe15de24e403a9256079be70)
-
-- Original paper version.
-  - Used MJ and ST label.
-
-**synthtiger_v1.1.zip** (38G) (md5: b2757a7e2b5040b14ed64c473533b592)
-
-- Used MJ and ST lexicon instead of MJ and ST label.
-  - [resources/corpus/mjsynth.txt](resources/corpus/mjsynth.txt)
-  - [resources/corpus/synthtext.txt](resources/corpus/synthtext.txt)
-- Fixed a bug that applies transformation twice on curved text.
-- Fixed a bug that incorrectly converts grayscale to RGB.
-
-| Version | IIIT5k | SVT | IC03 | IC13 | IC15 | SVTP | CUTE80 | Total |
-| ------- | ------ | --- | ---- | ---- | ---- | ---- | ------ | ----- |
-| 1.0 | 93.2 | 87.3 | 90.5 | 92.9 | 72.1 | 77.7 | 80.6 | 85.9 |
-| 1.1 | 93.4 | 87.6 | 91.4 | 93.2 | 73.9 | 77.8 | 80.6 | 86.6 |
-
-### Structure
-
-The structure of the dataset is as follows. The dataset contains 10M images.
-
-```
-gt.txt
-images/
-    0/
-        0.jpg
-        1.jpg
-        ...
-        9998.jpg
-        9999.jpg
-    1/
-    ...
-    998/
-    999/
-```
-
-The format of `gt.txt` is as follows. Image path and label are separated by tab. (`<image_path>\t<label>`)
-
-```
-images/0/0.jpg	10
-images/0/1.jpg	date:
-...
-images/999/9999998.jpg	STUFFIER
-images/999/9999999.jpg	Re:
 ```
 
 ## Citation

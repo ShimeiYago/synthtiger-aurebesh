@@ -1,6 +1,9 @@
 results/
 .DS_Store
 
+# Don't ignore .gitkeep files
+!.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -105,3 +108,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Aurebesh project specific
+aurebesh/fonts
+aurebesh/corpus.txt
