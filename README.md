@@ -44,7 +44,7 @@ aurebesh/fonts/variant  # bold / italic / condensed (used 30% of the time)
 |          | **FT Aurebesh – Regular**        | SIL OFL 1.1                                 | [DeeFont](https://www.deefont.com/ft-aurebesh-font-family/)           |
 |          | **FT Aurebesh – UltraLight**     | SIL OFL 1.1                                 | [DeeFont](https://www.deefont.com/ft-aurebesh-font-family/)           |
 |          | **Aurek-Besh – Regular**         | Freeware                                    | [FontSpace](https://www.fontspace.com/aurek-besh-font-f9639)          |
-| Variant  | **FT Aurebesh – Black**          | SIL OFL 1.1                                 | [DeeFont](https://www.deefont.com/ft-aurebesh-font-family/)           |
+| Variant  | **Aurebesh Droid**               |                                             | [dafont](https://www.dafont.com/aurebesh-droid.font)           |
 |          | **Aurebesh Font – Italic**       | Freeware, commercial use requires donation  | [FontSpace](https://www.fontspace.com/aurebesh-font-f17959)           |
 |          | **Aurek-Besh – Narrow**          | Freeware                                    | [FontSpace](https://www.fontspace.com/aurek-besh-font-f9639)          |
 
@@ -65,7 +65,7 @@ Create a mixed English + Star Wars term corpus (uppercase, 1–4 words per line)
 python tools/generate_aurebesh_corpus.py --size 150000
 ```
 
-Adjust distribution or Star Wars term rate with: `--len-dist "1:0.5,2:0.3,3:0.1,4:0.1"`, `--p-sw 0.05`, `--inject-punct 0.05`. The default Star Wars vocab file is at `aurebesh/vocab/starwars-vocab.txt`.
+Adjust distribution or Star Wars term rate with: `--len-dist "1:0.5,2:0.3,3:0.1,4:0.1"`, `--p-sw 0.05`, `--inject-punct 0.1`. The default Star Wars vocab file is at `aurebesh/vocab/starwars-vocab.txt`.
 
 ## Usage
 

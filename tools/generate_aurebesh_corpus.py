@@ -13,8 +13,8 @@ except ImportError:  # pragma: no cover
     top_n_list = None  # type: ignore
     zipf_frequency = None  # type: ignore
 
-ALLOWED_CHARS_PATTERN = re.compile(r"[^A-Z0-9 .' ]+")
-TOKEN_CLEAN_PATTERN = re.compile(r"[^A-Z0-9']+")  # inside tokens keep apostrophe
+ALLOWED_CHARS_PATTERN = re.compile(r"[^A-Z0-9 .'!&,:-]+")
+TOKEN_CLEAN_PATTERN = re.compile(r"[^A-Z0-9'!&,:-]+")  # inside tokens keep apostrophe
 
 DEFAULT_LEN_DIST = "1:0.5,2:0.35,3:0.10,4:0.05"
 
@@ -39,6 +39,8 @@ POSITIONAL_NUMBER_PATTERNS = [
     ("append", lambda tokens, rng: tokens + [str(rng.randint(1, 99))]),
     ("prepend", lambda tokens, rng: [str(rng.randint(1, 99))] + tokens),
 ]
+
+PUNCTUATION_TOKENS = ['!', '&', ',', '-', '.', ':']
 
 
 def parse_len_dist(spec: str):
@@ -140,39 +142,60 @@ def sample_words(rng: random.Random, base_words: List[str], base_weights: List[f
     return rng.choices(base_words, weights=base_weights, k=k)
 
 
-def maybe_inject_numbers(rng: random.Random, tokens: List[str], inject_prob: float, max_tokens: int = 4) -> List[str]:
-    if rng.random() >= inject_prob:
-        return tokens
-    # If already at or above max_tokens, perform in-place replacement of one token with a number (length-stable)
+def _inject_numeric(rng: random.Random, tokens: List[str], max_tokens: int) -> List[str]:
     if len(tokens) >= max_tokens:
         idx = rng.randrange(len(tokens))
-        # single numeric token from weighted patterns favoring 1-2 digits
         num_token = rng.choice(NUMERIC_INJECTION_PATTERNS)(rng)[0]
         tokens[idx] = num_token
         return tokens
-    # choose positional pattern 50% else simple addition at random position
     if rng.random() < 0.5:
         placement, func = rng.choice(POSITIONAL_NUMBER_PATTERNS)
         new_tokens = func(tokens, rng)
-        # Guard: if this exceeded max_tokens, fallback to replacement strategy
         if len(new_tokens) > max_tokens:
             idx = rng.randrange(len(tokens))
             num_token = rng.choice(NUMERIC_INJECTION_PATTERNS)(rng)[0]
             tokens[idx] = num_token
             return tokens
         return new_tokens
+    num_tokens = rng.choice(NUMERIC_INJECTION_PATTERNS)(rng)
+    allowable_inserts = max(0, max_tokens - len(tokens))
+    if allowable_inserts <= 0:
+        idx = rng.randrange(len(tokens))
+        tokens[idx] = num_tokens[0]
+        return tokens
+    num_tokens = num_tokens[:allowable_inserts]
+    pos = rng.randint(0, len(tokens))
+    return tokens[:pos] + num_tokens + tokens[pos:]
+
+
+def _inject_punctuation(rng: random.Random, tokens: List[str]) -> List[str]:
+    if not tokens:
+        return tokens
+    punct = rng.choice(PUNCTUATION_TOKENS)
+    if punct in {'-', '&'} and len(tokens) >= 2 and rng.random() < 0.5:
+        idx1 = rng.randrange(len(tokens))
+        idx2 = rng.randrange(len(tokens))
+        while idx2 == idx1:
+            idx2 = rng.randrange(len(tokens))
+        first, second = sorted((idx1, idx2))
+        combined = f"{tokens[first]}{punct}{tokens[second]}"
+        tokens[first] = combined
+        del tokens[second]
+        return tokens
+    idx = rng.randrange(len(tokens))
+    if rng.random() < 0.5:
+        tokens[idx] = punct + tokens[idx]
     else:
-        num_tokens = rng.choice(NUMERIC_INJECTION_PATTERNS)(rng)
-        # Insert but clamp
-        allowable_inserts = max(0, max_tokens - len(tokens))
-        if allowable_inserts <= 0:
-            idx = rng.randrange(len(tokens))
-            tokens[idx] = num_tokens[0]
-            return tokens
-        # Only take as many as allowed (always 1 in current patterns)
-        num_tokens = num_tokens[:allowable_inserts]
-        pos = rng.randint(0, len(tokens))
-        return tokens[:pos] + num_tokens + tokens[pos:]
+        tokens[idx] = tokens[idx] + punct
+    return tokens
+
+
+def maybe_inject_tokens(rng: random.Random, tokens: List[str], inject_prob: float, max_tokens: int = 4) -> List[str]:
+    if rng.random() >= inject_prob:
+        return tokens
+    if rng.random() < 0.7:
+        return _inject_numeric(rng, tokens, max_tokens)
+    return _inject_punctuation(rng, tokens)
 
 
 def ensure_sw_inclusion(rng: random.Random, tokens: List[str], sw_vocab: List[str]):
@@ -216,7 +239,7 @@ def generate_corpus(size: int, len_dist_spec: str, p_sw: float, inject_punct: fl
             k2 = k
             tokens = rng.choices(sw_vocab, k=k2)
 
-        tokens = maybe_inject_numbers(rng, tokens, inject_punct, max_tokens=4)
+        tokens = maybe_inject_tokens(rng, tokens, inject_punct, max_tokens=4)
 
         line = ' '.join(tokens)
         line = sanitize_line(line)
@@ -249,7 +272,7 @@ def main():
     parser.add_argument('--size', type=int, required=True, help='Number of lines to generate.')
     parser.add_argument('--len-dist', default=DEFAULT_LEN_DIST, help='Length distribution spec k:prob,... e.g. "1:0.5,2:0.3,3:0.1,4:0.1"')
     parser.add_argument('--p-sw', type=float, default=0.05, help='Probability a line contains at least one Star Wars vocab token.')
-    parser.add_argument('--inject-punct', type=float, default=0.05, help='Probability to inject numeric token(s).')
+    parser.add_argument('--inject-punct', type=float, default=0.1, help='Probability to inject numeric or punctuation token(s).')
     parser.add_argument('--sw-vocab', default='aurebesh/vocab/starwars-vocab.txt', help='Path to Star Wars vocab file.')
     parser.add_argument('--output', default='aurebesh/corpus.txt', help='Output corpus path.')
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility.')
